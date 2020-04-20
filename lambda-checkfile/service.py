@@ -31,7 +31,7 @@ def handler(event, context):
     for obj in s3.Bucket(bucket).objects.filter(Prefix=input_dir):
         tmp_file = obj.key
         if tmp_file.endswith('.txt'):
-            s3_files.append('tmp/' + os.path.basename(tmp_file))
+            s3_files.append('/tmp/' + os.path.basename(tmp_file))
             s3.Bucket(bucket).download_file(tmp_file, 'tmp/' + os.path.basename(tmp_file))
 
     print(s3_files)
