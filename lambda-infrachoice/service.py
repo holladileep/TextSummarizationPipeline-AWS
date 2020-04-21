@@ -1,12 +1,11 @@
 import json
 import os
 from configparser import ConfigParser
-
+from sentry_sdk import capture_message
 import boto3
 import pandas as pd
 import sentry_sdk
 
-sentry_sdk.init("https://848ed5b8adbd4155b9c2dab067f8727b@o377913.ingest.sentry.io/5200643")
 
 
 def handler(event, context):
@@ -21,18 +20,22 @@ def handler(event, context):
     config.read('/tmp/config.ini')
     print('Config File Parsed')
 
+    sentry_sdk.init(config.get('sentry', 'init_params'))
+
     # Download CSV with list of Valid URLs
     s3.Bucket(bucket).download_file(config.get('aws', 'link_op') + 'valid_url.csv', '/tmp/valid_url.csv')
     df2 = pd.read_csv('/tmp/valid_url.csv')
 
     count_row = df2.shape[0]
 
-    if (count_row <= 10):
+    if (count_row <= 60):
+        capture_message('Lambda Process to be Followed ; Less than 60 links to Scrape')
         return {
             'statusCode': 200,
-            'body': json.dumps('Less than 10 links to Scrape - Lambda to be Invoked')
+            'body': json.dumps('Less than 60 links to Scrape - Lambda to be Invoked')
         }
     else:
+        capture_message('Batch Process to be Followed ; Less than 60 links to Scrape')
         return {
             'statusCode': 300,
             'body': json.dumps('More than 10 Links - Invoking Batch Process')
