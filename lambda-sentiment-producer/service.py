@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import json
 import os
+from configparser import ConfigParser
 import boto3
+import requests
 import sentry_sdk
 from sentry_sdk import capture_message, capture_exception
-from configparser import ConfigParser
 
 
 def lambda_handler(event, context):
@@ -24,12 +27,13 @@ def lambda_handler(event, context):
 
     # Initiate Sentry SDK
     sentry_sdk.init(config.get('sentry', 'init_params'))
+    webhook_url = config.get('slack', 'webhook_url')
 
     for obj in s3.Bucket(bucket).objects.filter(Prefix=config.get('aws', 'stage2')):
         tmp_file = obj.key
         if tmp_file.endswith('.json'):
             msg = {"tmp_file": tmp_file}
-            
+
             try:
                 invoke_response = client.invoke(FunctionName="SentimentConsumer",
                                                 InvocationType='Event',
@@ -41,6 +45,23 @@ def lambda_handler(event, context):
                 capture_message('Could not Invoke Lambda for URL - ' + u)
 
             print('File Sent to Consumer Lambda for Analysis')
+
+    message = 'Invoked all Lambda Sentiment Consumers'
+
+    slack_data = {
+        "attachments": [
+            {
+                "text": message,
+                "color": "#4934eb",
+                "footer": "Lambda - Sentiment Producer"
+            }
+        ]
+    }
+
+    requests.post(
+        webhook_url, data=json.dumps(slack_data),
+        headers={'Content-Type': 'application/json'}
+    )
 
     return {
         'statusCode': 200,
