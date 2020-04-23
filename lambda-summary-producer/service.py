@@ -31,10 +31,15 @@ def handler(event, context):
     sentry_sdk.init(config.get('sentry', 'init_params'))
     webhook_url = config.get('slack', 'webhook_url')
 
+    i = 0
+
     for obj in s3.Bucket(bucket).objects.filter(Prefix=config.get('aws', 'stage2')):
         tmp_file = obj.key
+        i = i + 1
         if tmp_file.endswith('.json'):
             msg = {"tmp_file": tmp_file}
+
+            
 
             try:
                 invoke_response = client.invoke(FunctionName="SummaryConsumer",
@@ -56,7 +61,7 @@ def handler(event, context):
 
             print('File Sent to Consumer Lambda for Analysis')
 
-    message = '*Summary Producer* | All files Sent to Lambda Consumers for Text Summarization'
+    message = '*Summary Producer* | ' + str(i*2) + ' Lambda Summarization Consumer(s) Invoked'
 
     slack_data = {
         "attachments": [
