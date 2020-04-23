@@ -2,7 +2,9 @@
 
 import json
 import os
+import time
 from configparser import ConfigParser
+
 import boto3
 import requests
 import sentry_sdk
@@ -35,10 +37,18 @@ def handler(event, context):
             msg = {"tmp_file": tmp_file}
 
             try:
-                invoke_response = client.invoke(FunctionName="SentimentConsumer",
+                invoke_response = client.invoke(FunctionName="SummaryConsumer",
                                                 InvocationType='Event',
                                                 Payload=json.dumps(msg))
                 print(invoke_response)
+
+                time.sleep(1)
+
+                invoke_response2 = client.invoke(FunctionName="SummaryConsumer-2",
+                                                 InvocationType='Event',
+                                                 Payload=json.dumps(msg))
+                print(invoke_response2)
+
 
             except Exception as e:
                 capture_exception(e)
@@ -46,14 +56,14 @@ def handler(event, context):
 
             print('File Sent to Consumer Lambda for Analysis')
 
-    message = 'All files Sent to Lambda Consumers for Text Summarization'
+    message = '*Summary Producer* | All files Sent to Lambda Consumers for Text Summarization'
 
     slack_data = {
         "attachments": [
             {
                 "text": message,
                 "color": "#36a64f",
-                "footer": "CSYE 7245"
+                "footer": "Summary Producer"
             }
         ]
     }
