@@ -35,8 +35,9 @@ def handler(event, context):
 
     for obj in s3.Bucket(bucket).objects.filter(Prefix=config.get('aws', 'stage2')):
         tmp_file = obj.key
-        i = i + 1
+        
         if tmp_file.endswith('.json'):
+            i = i + 1
             msg = {"tmp_file": tmp_file}
 
             
@@ -47,7 +48,6 @@ def handler(event, context):
                                                 Payload=json.dumps(msg))
                 print(invoke_response)
 
-                time.sleep(1)
 
                 invoke_response2 = client.invoke(FunctionName="SummaryConsumer-2",
                                                  InvocationType='Event',
