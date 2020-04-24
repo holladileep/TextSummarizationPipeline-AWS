@@ -23,7 +23,7 @@ Swarna Ananthaswamy <br />
 [TS-Pipeline | WebApp](http://18.234.153.64:8501/)<br />
 
 ##### Test Cases<br />
-[Document](http://http://18.234.153.64:8501/)
+[Document](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
 
 ---
 
@@ -248,7 +248,10 @@ Create all tables from the DynamoDB console with `url` as the **Primary Key**. T
 The pipeline delivers real-time notifications via Slack. All Python processes are designed to push notifications to Slack via the Web-Hook placed in the `config.ini` file. Step by step instructions to create an App and generate an incoming Web-Hook can be found [here](https://api.slack.com/messaging/webhooks).
 
 Once the Web-Hook is generated, place the same inside the `config.ini` file for the key `webhook_url`.
- 
 
-## License
+## TestCases
 
+Test Cases have been documented [here](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
+The pipeline can be tested with the sample `demo.txt` file present in the `tests` directory. Additonally any URL can be entered in the Streamlit app and results can be seen. 
+
+[![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)]
