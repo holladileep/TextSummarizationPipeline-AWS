@@ -2,13 +2,28 @@
 
 Pipeline to summarize news article(s)
 
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
-**Course Documents**
+**Team Members**<br />
+Uthsav Shetty <br />
+Dileep Ravindranath Holla <br />
+Swarna Ananthaswamy <br />
 
-[Presentation](https://docs.google.com/document/d/1YMq5QQI7rR6wszhGaVp9iZlRndOikG59GAwNEQaf1f4/edit?usp=sharing)
+#### Quick Links
 
-[Project Proposal](https://docs.google.com/document/d/1YMq5QQI7rR6wszhGaVp9iZlRndOikG59GAwNEQaf1f4/edit?usp=sharing)
+##### Presentations <br />
+[Presentation](https://docs.google.com/document/d/1YMq5QQI7rR6wszhGaVp9iZlRndOikG59GAwNEQaf1f4/edit?usp=sharing)<br />
+[Project Proposal](https://docs.google.com/document/d/1QRjOFOU81qru-dsCTIoF4OCbajMffB-vANqJgpZCjGs/edit?usp=sharing)<br />
+
+##### Images on DockerHub.com <br />
+[summary-gen-1](https://hub.docker.com/r/holladileep/summary-gen-1)<br />
+[summary-gen-2](https://hub.docker.com/r/holladileep/summary-gen-2)<br />
+
+##### Streamlit Application<br />
+[TS-Pipeline | WebApp](http://18.234.153.64:8501/)<br />
+
+##### Test Cases<br />
+[Document](http://http://18.234.153.64:8501/)
 
 ---
 
@@ -16,6 +31,7 @@ Pipeline to summarize news article(s)
 
 - [Introduction](#introduction)
 - [Setup](#setup)
+- [TestCases](#testcases)
 
 ---
 
@@ -26,20 +42,13 @@ Pipeline to summarize news article(s)
 
 ## Setup
 
-- The pipeline requires an Amazon Web Services account to deploy and run
-
-### Clone
-
-- Clone this repo to your local machine using `https://github.com/holladileep/TS-Pipeline.git`
-
-### AWS Account Setup
-
-Signup for an AWS Account [here](https://portal.aws.amazon.com/billing/signup#/start). The pipeline uses the folllowing AWS Services:
+The pipeline requires an Amazon Web Services account to deploy and run. Signup for an AWS Account [here](https://portal.aws.amazon.com/billing/signup#/start). The pipeline uses the folllowing AWS Services:
 
 - Lambda 
 - Batch
 - S3
 - STEP Functions
+- DynamoDB
 - Comprehend
 - CloudWatch
 - CloudTrail
@@ -47,6 +56,32 @@ Signup for an AWS Account [here](https://portal.aws.amazon.com/billing/signup#/s
 - Simple Notification Servive (SNS)
 
 Create a new role on the AWS IAM Console and upload the policy template found at `aws_config/policy.json` on this repository to allow access to all required AWS Services
+
+### Clone
+
+Clone this repo to your local machine using `https://github.com/holladileep/TS-Pipeline.git`
+
+### Setup `config.ini` 
+
+All scripts make use of the `configparser` Python library to easily pass configuration data to running scripts/deployed packages. This allows for easy replication of code with zero modifications to Python scripts. Find configuration file can be found in `config/config.ini` directory on this repository. Modify the file with your environment variables and place it on your S3 bucket under the `config` directory like so `YourS3BucketName/config/config.ini` ; All packages and scripts are designed to read the configuration values from this path.
+
+```
+[aws]
+input_dir: demo/
+link_op: stage1/
+stage2: stage2/
+bucket: <enter your bucketname here>
+
+[sentry]
+init_params: <Enter Sentry Endpoint Here>
+
+[slack]
+webhook_url: <Enter Slack WebHook here>
+
+[flask]
+app1: <Enter endpoint for Summary-Gen-1>
+app2: <Enter endpoint for Summary-Gen-1>
+```
 
 ### Deploying Lambda Functions 
 
@@ -58,7 +93,7 @@ Python Lambda is toolkit to easily package and deploy serverless code to AWS Lam
 
 #### Setup your `config.yaml`
 
-All `lambda-` directory contain a `config.yaml` file with the configuration information required to deploy the Lambda package to AWS. Configure the file with your access keys, secret access keys and function name before packaging and deploying the Python code. An example is as follows
+All `lambda-` directories contain a `config.yaml` file with the configuration information required to deploy the Lambda package to AWS. Configure the file with your access keys, secret access keys and function name before packaging and deploying the Python code. An example is as follows
 
 ```
 region: us-east-1
@@ -109,11 +144,26 @@ Replace the created `service.py` and `config.yaml` files with the `service.py` a
 ```
 lambda deploy
 ```
-This should create a new Lambda function on your AWS Lambda Console. Follow the same steps for all `lambda` directories on this repository. 
+This should create a new Lambda function on your AWS Lambda Console. Follow the same steps for all `lambda` directories on this repository to deploy packages to AWS Lambda.
 
 ### Deploying Model Summarization Flask Applications
 
 The pipeline uses two summarizers, which are packaged as standalone Flask applications running on EC2. They can be found in the `docker-summary-gen-1-distil` and `docker-summary-gen-2-bertlarge` directories on this repo. Provision an EC2 instance on your AWS account ; Recommended EC2 instance type is `t2.xlarge`. The Flask applications accept requests on ports `5000` and `5001` respectively. 
+
+#### DockerHub
+
+All images are pushed to DockerHub. They can be found here:<br />
+[summary-gen-1](https://hub.docker.com/r/holladileep/summary-gen-1)<br />
+[summary-gen-2](https://hub.docker.com/r/holladileep/summary-gen-2)
+
+> Pull Images
+
+```
+docker pull holladileep/summary-gen-1
+docker pull holladileep/summary-gen-2
+```
+
+#### Build Docker Images manually from this repository 
 
 > Install and run Docker on the EC2 instance 
 ```
@@ -127,12 +177,12 @@ This should install Docker on the instance and start the service. Verify if the 
 
 Copy contents of `docker-summary-gen-1-distil` and `docker-summary-gen-2-bertlarge` to the instance.
 
-Service 1 
+*Service 1*
 ```
 cd docker-summary-gen-1-distil
 docker build -t summary-gen-1 -f Dockerfile.service ./
 ```
-Service 2 
+*Service 2*
 ```
 cd docker-summary-gen-2-bertlarge
 docker build -t summary-gen-1 -f Dockerfile.service ./
@@ -145,6 +195,60 @@ docker run --rm -it -p 5001:5001 summary-gen-2:latest -model bert-large-uncased
 docker run --rm -it -p 5000:5000 summary-gen-1:latest -model distilbert-base-uncased
 ```
 The Flask Application should now be running on `localhost:5000` and `localhost:5001` respectively.
+
+Summarization Lambda Consumers use the created Flask URLs in the pipeline. To allow the Consumers to make an API request to the endpoints, place the API endpoints for the two running services under the keys `app1` and `app2` inside the `config.ini` file. 
+
+### Deploying Step Workflow 
+
+AWS Step is used the pipeline and for job orchestration. Go to AWS Console and create a new state machine. AWS Step requires the workflow to be written in [Amazon States Language](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html). 
+
+The ASL `workflow.json` file is available on `aws_step_workflow` directory on this repository. Paste the contents of the file on State Machine Definition after creating a new State Machine on the AWS Step console.
+
+#### Triggering the workflow
+
+Click on the newly created Step workflow and click on New Execution
+
+#### Auto-Trigger the workflow on placing an input file on S3 Bucket 
+
+CloudTrail and CloudWatch are used to auto-trigger the pipeline on any `PUT` operations on the S3 Bucket. In order to set this up - create a new CloudTrail and add the source S3 Bucket. Once the trail is created, go to the CloudWatch console to create a new Rule. Provide the rule name and select the `Event Pattern` option. Select `Simple Storage Service` as the service name and `Object Level Operations` as the Event Type. Select `PutOperations` for the type of operations and specify the Bucket name. On the target screen, choose AWS Step and choose the newly created Step Workflow as the target. Deploy the created rule. 
+
+AWS Provides a handy guide to walk through the entire process. It can be found [here](https://docs.aws.amazon.com/step-functions/latest/dg/tutorial-cloudwatch-events-s3.html#tutorial-cloudwatch-events-s3-trail)
+
+### Deploying Streamlit App 
+
+The pipeline uses [Streamlit](https://www.streamlit.io/) for allowing the user to upload a file with URLs, enter a single URL or quicky summarize text and sentiments for a given text input. The app directly interacts with the built components on AWS and provides a GUI to run the pipeline without the need for the end-user to manually login to AWS Account and trigger the pipeline.
+
+The Python code for this app can be found at `streamlit_webapp/app.py`. This app is deployed on the EC2 Instance.
+
+> Install required libraries
+
+```
+pip3 install streamlit
+pip3 install boto3
+pip3 install pandas
+pip3 install configparser
+```
+
+> Run `app.py`
+
+Run the WebApp by running `streamlit run app.py`. 
+
+### DynamoDB
+
+The pipleine requires three tables to be created on DynamoDB:
+
+- `articles` Store the scraped data 
+- `sentiments` Store sentiment scores
+- `summary` Store generated summaries and scores
+
+Create all tables from the DynamoDB console with `url` as the **Primary Key**. There is NO need to specify additional fields.
+
+### Slack 
+
+The pipeline delivers real-time notifications via Slack. All Python processes are designed to push notifications to Slack via the Web-Hook placed in the `config.ini` file. Step by step instructions to create an App and generate an incoming Web-Hook can be found [here](https://api.slack.com/messaging/webhooks).
+
+Once the Web-Hook is generated, place the same inside the `config.ini` file for the key `webhook_url`.
+ 
 
 ## License
 
