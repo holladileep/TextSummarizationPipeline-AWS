@@ -1,0 +1,6 @@
+pandas
+sentry_sdk
+configparser
+python-lambda
+boto3
+requests
