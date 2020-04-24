@@ -2,14 +2,16 @@
 
 import json
 import os
+import time
 from configparser import ConfigParser
+
 import boto3
 import requests
 import sentry_sdk
 from sentry_sdk import capture_message, capture_exception
 
 
-def lambda_handler(event, context):
+def handler(event, context):
     # TODO implement
 
     bucket = os.environ['ip_bucket']
@@ -29,16 +31,29 @@ def lambda_handler(event, context):
     sentry_sdk.init(config.get('sentry', 'init_params'))
     webhook_url = config.get('slack', 'webhook_url')
 
+    i = 0
+
     for obj in s3.Bucket(bucket).objects.filter(Prefix=config.get('aws', 'stage2')):
         tmp_file = obj.key
+        i = i + 1
         if tmp_file.endswith('.json'):
             msg = {"tmp_file": tmp_file}
 
+            
+
             try:
-                invoke_response = client.invoke(FunctionName="SentimentConsumer",
+                invoke_response = client.invoke(FunctionName="SummaryConsumer",
                                                 InvocationType='Event',
                                                 Payload=json.dumps(msg))
                 print(invoke_response)
+
+                time.sleep(1)
+
+                invoke_response2 = client.invoke(FunctionName="SummaryConsumer-2",
+                                                 InvocationType='Event',
+                                                 Payload=json.dumps(msg))
+                print(invoke_response2)
+
 
             except Exception as e:
                 capture_exception(e)
@@ -46,14 +61,14 @@ def lambda_handler(event, context):
 
             print('File Sent to Consumer Lambda for Analysis')
 
-    message = 'Invoked all Lambda Sentiment Consumers'
+    message = '*Summary Producer* | ' + str(i*2) + ' Lambda Summarization Consumer(s) Invoked'
 
     slack_data = {
         "attachments": [
             {
                 "text": message,
-                "color": "#4934eb",
-                "footer": "Lambda - Sentiment Producer"
+                "color": "#36a64f",
+                "footer": "Summary Producer"
             }
         ]
     }
