@@ -4,3 +4,4 @@ configparser
 python-lambda
 boto3
 requests
+newspaper3k
