@@ -254,4 +254,4 @@ Once the Web-Hook is generated, place the same inside the `config.ini` file for 
 Test Cases have been documented [here](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
 The pipeline can be tested with the sample `demo.txt` file present in the `tests` directory. Additonally any URL can be entered in the Streamlit app and results can be seen. 
 
-[![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)]
+![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)
