@@ -2,17 +2,28 @@
 
 Pipeline to summarize news article(s)
 
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
-
-**Course Documents**
-
-[Presentation](https://docs.google.com/document/d/1YMq5QQI7rR6wszhGaVp9iZlRndOikG59GAwNEQaf1f4/edit?usp=sharing) <br />
-[Project Proposal](https://docs.google.com/document/d/1YMq5QQI7rR6wszhGaVp9iZlRndOikG59GAwNEQaf1f4/edit?usp=sharing)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 **Team Members**<br />
 Uthsav Shetty <br />
 Dileep Ravindranath Holla <br />
 Swarna Ananthaswamy <br />
+
+#### Quick Links
+
+##### Presentations <br />
+[Presentation](https://docs.google.com/document/d/1YMq5QQI7rR6wszhGaVp9iZlRndOikG59GAwNEQaf1f4/edit?usp=sharing)<br />
+[Project Proposal](https://docs.google.com/document/d/1QRjOFOU81qru-dsCTIoF4OCbajMffB-vANqJgpZCjGs/edit?usp=sharing)<br />
+
+##### Images on DockerHub.com <br />
+[summary-gen-1](https://hub.docker.com/r/holladileep/summary-gen-1)<br />
+[summary-gen-2](https://hub.docker.com/r/holladileep/summary-gen-2)<br />
+
+##### Streamlit Application<br />
+[TS-Pipeline | WebApp](http://18.234.153.64:8501/)<br />
+
+##### Test Cases<br />
+[Document](http://http://18.234.153.64:8501/)
 
 ---
 
@@ -20,6 +31,7 @@ Swarna Ananthaswamy <br />
 
 - [Introduction](#introduction)
 - [Setup](#setup)
+- [TestCases](#testcases)
 
 ---
 
@@ -36,6 +48,7 @@ The pipeline requires an Amazon Web Services account to deploy and run. Signup f
 - Batch
 - S3
 - STEP Functions
+- DynamoDB
 - Comprehend
 - CloudWatch
 - CloudTrail
@@ -164,12 +177,12 @@ This should install Docker on the instance and start the service. Verify if the 
 
 Copy contents of `docker-summary-gen-1-distil` and `docker-summary-gen-2-bertlarge` to the instance.
 
-Service 1 
+*Service 1*
 ```
 cd docker-summary-gen-1-distil
 docker build -t summary-gen-1 -f Dockerfile.service ./
 ```
-Service 2 
+*Service 2*
 ```
 cd docker-summary-gen-2-bertlarge
 docker build -t summary-gen-1 -f Dockerfile.service ./
@@ -183,9 +196,13 @@ docker run --rm -it -p 5000:5000 summary-gen-1:latest -model distilbert-base-unc
 ```
 The Flask Application should now be running on `localhost:5000` and `localhost:5001` respectively.
 
+Summarization Lambda Consumers use the created Flask URLs in the pipeline. To allow the Consumers to make an API request to the endpoints, place the API endpoints for the two running services under the keys `app1` and `app2` inside the `config.ini` file. 
+
 ### Deploying Step Workflow 
 
-AWS Step is used the pipeline and for job orchestration. Go to AWS Console and create a new state machine. AWS Step requires the workflow to be written in [Amazon States Language](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html). The ASL `workflow.json` file is available on `aws_step_workflow` directory on this repository. Paste the contents of the file on State Machine Definition after creating a new State Machine on the AWS Step console.
+AWS Step is used the pipeline and for job orchestration. Go to AWS Console and create a new state machine. AWS Step requires the workflow to be written in [Amazon States Language](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html). 
+
+The ASL `workflow.json` file is available on `aws_step_workflow` directory on this repository. Paste the contents of the file on State Machine Definition after creating a new State Machine on the AWS Step console.
 
 #### Triggering the workflow
 
@@ -193,7 +210,7 @@ Click on the newly created Step workflow and click on New Execution
 
 #### Auto-Trigger the workflow on placing an input file on S3 Bucket 
 
-CloudTrail and CloudWatch are used to auto-trigger the pipeline on any `PUT` operations on the S3 Bucket. In order to set this up - create a new CloudTrail and add the source S3 Bucket. Once the trail is created, go to the CloudWatch console to create a new Rule. Provide the rule name and select the `Event Pattern` option. Select `Simple Storage Service` as the service name and `Objct Level Operations` as the Event Type. Select `PutOperations` for the type of operations and specify the Bucket name. On the target screen, choose AWS Step and choose the newly created Step Workflow as the target. Deploy the created rule. 
+CloudTrail and CloudWatch are used to auto-trigger the pipeline on any `PUT` operations on the S3 Bucket. In order to set this up - create a new CloudTrail and add the source S3 Bucket. Once the trail is created, go to the CloudWatch console to create a new Rule. Provide the rule name and select the `Event Pattern` option. Select `Simple Storage Service` as the service name and `Object Level Operations` as the Event Type. Select `PutOperations` for the type of operations and specify the Bucket name. On the target screen, choose AWS Step and choose the newly created Step Workflow as the target. Deploy the created rule. 
 
 AWS Provides a handy guide to walk through the entire process. It can be found [here](https://docs.aws.amazon.com/step-functions/latest/dg/tutorial-cloudwatch-events-s3.html#tutorial-cloudwatch-events-s3-trail)
 
@@ -215,6 +232,23 @@ pip3 install configparser
 > Run `app.py`
 
 Run the WebApp by running `streamlit run app.py`. 
+
+### DynamoDB
+
+The pipleine requires three tables to be created on DynamoDB:
+
+- `articles` Store the scraped data 
+- `sentiments` Store sentiment scores
+- `summary` Store generated summaries and scores
+
+Create all tables from the DynamoDB console with `url` as the **Primary Key**. There is NO need to specify additional fields.
+
+### Slack 
+
+The pipeline delivers real-time notifications via Slack. All Python processes are designed to push notifications to Slack via the Web-Hook placed in the `config.ini` file. Step by step instructions to create an App and generate an incoming Web-Hook can be found [here](https://api.slack.com/messaging/webhooks).
+
+Once the Web-Hook is generated, place the same inside the `config.ini` file for the key `webhook_url`.
+ 
 
 ## License
 
