@@ -1,6 +1,5 @@
 # CSYE7245 - Text Summarization Pipeline
 
-Pipeline to summarize news article(s)
 
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
@@ -33,9 +32,14 @@ Swarna Ananthaswamy <br />
 - [Setup](#setup)
 - [TestCases](#testcases)
 
----
 
 ## Introduction
+
+Scalable Data Pipeline for scraping/collecting articles, generating text summaries & sentiment analysis, benchmarking ROUGE scores, and deploying them on the cloud to run completely on a Serverless Infrastructure on-demand. Summarization is done using `bert` models based on the HuggingFace Pytorch transformers library to run extractive summarizations.
+
+#### Architecture 
+
+![alt text](https://github.com/holladileep/TS-Pipeline/blob/dev/img/CSYE7245_v2-2.png)
 
 ---
 
@@ -251,7 +255,26 @@ Once the Web-Hook is generated, place the same inside the `config.ini` file for 
 
 ## TestCases
 
-Test Cases have been documented [here](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
+All Test Cases have been documented [here](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
+
+Streamlit App can be accessed using this link: [TS-Pipeline | WebApp](http://18.234.153.64:8501/)
+
 The pipeline can be tested with the sample `demo.txt` file present in the `tests` directory. Additonally any URL can be entered in the Streamlit app and results can be seen. 
+
+Additionally, POST request can be made to the following URLs to receive a summarized response.
+
+> Model 1
+```
+POST http://18.234.153.64:5001/summarize?ratio=0.2
+Content-type: text/plain
+Body: <enter your text here>
+```
+> Model 2
+```
+POST http://3.87.77.113:5000/summarize?ratio=0.2
+Content-type: text/plain
+Body: <enter your text here>
+```
+
 
 ![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)
