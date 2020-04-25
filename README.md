@@ -242,15 +242,19 @@ Run the WebApp by running `streamlit run app.py`.
 The Python script for batch scraping URLs can be found in `scrape-batch/` directory. Copy contents of the directory on your machine. 
 
 > Create new ECR Repository
+
 Create a new repository on ECR with the following name `ts-pipeline1`
 
 > Login to the repository
+
 `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your_account_id>/ts-pipeline1`
 
 > Build the Image
+
 `docker build -t ts-pipeline1 .`
 
-> Tag the image 
+> Tag the image
+
 `docker tag <your_ECR_repository_URL>/ts-pipeline1:latest`
 
 > Push the image to ECR
