@@ -237,6 +237,28 @@ pip3 install configparser
 
 Run the WebApp by running `streamlit run app.py`. 
 
+### Deploying the AWS Batch Docker Container
+
+The Python script for batch scraping URLs can be found in `scrape-batch/` directory. Copy contents of the directory on your machine. 
+
+> Create new ECR Repository
+Create a new repository on ECR with the following name `ts-pipeline1`
+
+> Login to the repository
+`aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your_account_id>/ts-pipeline1`
+
+> Build the Image
+`docker build -t ts-pipeline1 .`
+
+> Tag the image 
+`docker tag <your_ECR_repository_URL>/ts-pipeline1:latest`
+
+> Push the image to ECR
+`docker push <your_ECR_repository_URL>/ts-pipeline1:latest`
+
+Create a new Compute Environment first followed by a Job Queue on the AWS Batch Console with the default configurations.
+Create a Job Definition on the console and provide the ECR container ID created earlier as the input to the `container` attribute. The batch process is ready for execution
+
 ### DynamoDB
 
 The pipleine requires three tables to be created on DynamoDB:
@@ -252,6 +274,7 @@ Create all tables from the DynamoDB console with `url` as the **Primary Key**. T
 The pipeline delivers real-time notifications via Slack. All Python processes are designed to push notifications to Slack via the Web-Hook placed in the `config.ini` file. Step by step instructions to create an App and generate an incoming Web-Hook can be found [here](https://api.slack.com/messaging/webhooks).
 
 Once the Web-Hook is generated, place the same inside the `config.ini` file for the key `webhook_url`.
+
 
 ## TestCases
 
