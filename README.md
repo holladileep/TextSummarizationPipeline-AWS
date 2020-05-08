@@ -19,7 +19,8 @@ Swarna Ananthaswamy <br />
 [summary-gen-2](https://hub.docker.com/r/holladileep/summary-gen-2)<br />
 
 ##### Streamlit Application<br />
-> :warning: The instance hosting this Web Application has been shutdown to avoid recurring AWS Charges. Follow instructions below to setup and deploy your own Streamlit Application<br /> 
+> :warning: The instance hosting this Web Application has been shutdown to avoid recurring AWS Charges. Follow instructions below to setup and deploy your own Streamlit Application<br />
+
 [TS-Pipeline | WebApp](http://18.234.153.64:8501/)<br /> 
 
 ##### Test Cases<br />
