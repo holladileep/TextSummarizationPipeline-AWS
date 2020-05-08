@@ -19,7 +19,9 @@ Swarna Ananthaswamy <br />
 [summary-gen-2](https://hub.docker.com/r/holladileep/summary-gen-2)<br />
 
 ##### Streamlit Application<br />
-[TS-Pipeline | WebApp](http://18.234.153.64:8501/)<br />
+> :warning: The instance hosting this Web Application has been shutdown to avoid recurring AWS Charges. Follow instructions below to setup and deploy your own Streamlit Application<br />
+
+[TS-Pipeline | WebApp](http://18.234.153.64:8501/)<br /> 
 
 ##### Test Cases<br />
 [Document](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
@@ -285,10 +287,13 @@ Once the Web-Hook is generated, place the same inside the `config.ini` file for 
 All Test Cases have been documented [here](https://docs.google.com/document/d/1fUBjMMH8iwD7WO291wInE3U9daDpmmAYEeFQTnxxT2w/edit?usp=sharing)
 
 Streamlit App can be accessed using this link: [TS-Pipeline | WebApp](http://18.234.153.64:8501/)
+> :warning: The instance hosting the App has been shutdown
 
 The pipeline can be tested with the sample `demo.txt` file present in the `tests` directory. Additonally any URL can be entered in the Streamlit app and results can be seen. 
 
-Additionally, POST request can be made to the following URLs to receive a summarized response.
+Additionally, `POST` request can be made to the following URLs to receive a summarized response.
+
+> :warning: `POST` requests made to the below API Endpoints do not work since the Flask Application is no longer running on EC2 Instance to avoid recurring AWS Charges. Replace the endpoints with your deployed Flask Application(s) to test the summarization models
 
 > Model 1
 ```
